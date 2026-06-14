@@ -6,6 +6,34 @@ to use as the basis for a programmatic importer.
 
 ---
 
+# ⚠️ PREFERRED WORKFLOW (read this first) — click-to-import, not download-to-import
+
+**Most platforms do NOT need a download-import pipeline.** The browser
+extension already captures live conversations via `content.js`. When the
+user clicks a past conversation in the platform's history sidebar, the
+platform re-renders the conversation into the live chat, the extension's
+URL observer + MutationObserver fires, and the message is ingested via
+`POST /v1/ingest/conversation` with backend-side dedup by content hash.
+
+This means for ~7 of 8 platforms, the "history importer" UX is just:
+"open the AI's site, click each past conversation in the sidebar." The
+extension does the rest. No download, no parse, no schema.
+
+**When the download path IS needed** (only these cases):
+- The platform doesn't have a clickable past-conversation list
+- The user wants the "official" archive for compliance / portability
+- The live re-render drops specific content (file uploads, images, etc.)
+- A platform is missing entirely from the extension's capture list
+
+**Documented below** for completeness + the cases where the download
+path IS the right answer. Build order recommendation revised:
+
+1. User docs + popup UI hint (1 day)
+2. Click-to-import verification per platform (test in extension)
+3. Download-import pipeline only for the platforms that need it
+
+---
+
 ## 1. ChatGPT (OpenAI) — ✅ EASY
 
 - **Path:** Settings → Data Controls → Export Data → email download
